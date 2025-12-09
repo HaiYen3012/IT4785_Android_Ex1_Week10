@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/ivDelete"
         android:orientation="vertical">
 
         <TextView
@@ -33,18 +32,5 @@
             android:textSize="14sp" />
 
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/ivDelete"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/ic_delete"
-        android:padding="10dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Xóa" />
 
 </RelativeLayout>
