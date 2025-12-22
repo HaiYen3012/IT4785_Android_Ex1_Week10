@@ -1,37 +1,45 @@
 package com.example.bai1
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.bai1.databinding.ItemSinhvienBinding
 
-class SinhVienAdapter(
-    private val sinhVienList: List<SinhVien>,
-    private val onItemClick: (Int) -> Unit
-) : RecyclerView.Adapter<SinhVienAdapter.SinhVienViewHolder>() {
-
-    class SinhVienViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvHoTen: TextView = itemView.findViewById(R.id.tvHoTen)
-        val tvMssv: TextView = itemView.findViewById(R.id.tvMssv)
-    }
+class SinhVienAdapter(private val onItemClick: (SinhVien) -> Unit) :
+    ListAdapter<SinhVien, SinhVienAdapter.SinhVienViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SinhVienViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_sinhvien, parent, false)
-        return SinhVienViewHolder(view)
-    }
-
-    override fun getItemCount(): Int {
-        return sinhVienList.size
+        val binding = ItemSinhvienBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return SinhVienViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: SinhVienViewHolder, position: Int) {
-        val currentSinhVien = sinhVienList[position]
-        holder.tvHoTen.text = currentSinhVien.hoTen
-        holder.tvMssv.text = currentSinhVien.mssv
-
+        val current = getItem(position)
         holder.itemView.setOnClickListener {
-            onItemClick(position)
+            onItemClick(current)
+        }
+        holder.bind(current)
+    }
+
+    class SinhVienViewHolder(private val binding: ItemSinhvienBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(sinhVien: SinhVien) {
+            binding.tvStudentId.text = sinhVien.mssv
+            binding.tvStudentName.text = sinhVien.name
+        }
+    }
+
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<SinhVien>() {
+            override fun areItemsTheSame(oldItem: SinhVien, newItem: SinhVien): Boolean {
+                return oldItem.mssv == newItem.mssv
+            }
+
+            override fun areContentsTheSame(oldItem: SinhVien, newItem: SinhVien): Boolean {
+                return oldItem == newItem
+            }
         }
     }
 }
