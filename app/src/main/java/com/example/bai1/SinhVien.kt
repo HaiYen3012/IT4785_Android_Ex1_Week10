@@ -5,8 +5,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SinhVien(
-    val mssv: String,
-    var name: String,
-    var phone: String = "",
-    var address: String = ""
+    val id: String,
+    val name: String,
+    val phone: String,
+    val address: String
 ) : Parcelable

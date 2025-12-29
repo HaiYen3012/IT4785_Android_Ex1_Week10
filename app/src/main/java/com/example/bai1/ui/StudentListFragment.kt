@@ -8,59 +8,54 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.bai1.SinhVien
+import com.example.bai1.R
 import com.example.bai1.SinhVienAdapter
 import com.example.bai1.StudentViewModel
 import com.example.bai1.databinding.FragmentStudentListBinding
 
 class StudentListFragment : Fragment() {
-
-    private lateinit var binding: FragmentStudentListBinding
+    private var _binding: FragmentStudentListBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: StudentViewModel by activityViewModels()
-
-    private val studentAdapter: SinhVienAdapter by lazy {
-        SinhVienAdapter { student -> handleStudentClick(student) }
-    }
+    private lateinit var studentAdapter: SinhVienAdapter
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentStudentListBinding.inflate(inflater, container, false)
+        _binding = FragmentStudentListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        initializeRecyclerView()
-        initializeUI()
-        observeStudentList()
+        initializeUi()
+        observeViewModel()
     }
 
-    private fun initializeRecyclerView() {
+    private fun initializeUi() {
+        studentAdapter = SinhVienAdapter(emptyList()) { student ->
+            viewModel.selectStudent(student)
+            findNavController().navigate(R.id.action_studentListFragment_to_studentDetailFragment)
+        }
         binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
             adapter = studentAdapter
+            layoutManager = LinearLayoutManager(requireContext())
         }
-    }
-
-    private fun initializeUI() {
         binding.fabAdd.setOnClickListener {
-            val action = StudentListFragmentDirections.actionStudentListFragmentToAddStudentFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.action_studentListFragment_to_addStudentFragment)
         }
     }
 
-    private fun observeStudentList() {
-        viewModel.students.observe(viewLifecycleOwner) { studentList ->
-            // Create a new list copy for the adapter to detect changes
-            studentAdapter.submitList(studentList.toList())
+    private fun observeViewModel() {
+        viewModel.students.observe(viewLifecycleOwner) { students ->
+            studentAdapter.updateStudents(students)
         }
     }
 
-    private fun handleStudentClick(student: SinhVien) {
-        val action = StudentListFragmentDirections.actionStudentListFragmentToStudentDetailFragment(student.mssv)
-        findNavController().navigate(action)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

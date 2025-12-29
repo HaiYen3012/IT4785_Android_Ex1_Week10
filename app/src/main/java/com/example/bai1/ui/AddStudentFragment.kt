@@ -8,11 +8,13 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.example.bai1.SinhVien
 import com.example.bai1.StudentViewModel
 import com.example.bai1.databinding.FragmentAddStudentBinding
 
 class AddStudentFragment : Fragment() {
-    private lateinit var binding: FragmentAddStudentBinding
+    private var _binding: FragmentAddStudentBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: StudentViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -20,27 +22,39 @@ class AddStudentFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAddStudentBinding.inflate(inflater, container, false)
+        _binding = FragmentAddStudentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
+        binding.btnSave.setOnClickListener { trySaveStudent() }
+    }
 
-        viewModel.initStudentForAdd()
+    private fun trySaveStudent() {
+        val id = binding.etStudentId.text.toString().trim()
+        val name = binding.etStudentName.text.toString().trim()
+        val phone = binding.etStudentPhone.text.toString().trim()
+        val address = binding.etStudentAddress.text.toString().trim()
 
-        viewModel.navigationEvent.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let {
-                findNavController().navigateUp()
-            }
+        if (id.isEmpty() || name.isEmpty()) {
+            Toast.makeText(context, "MSSV và Tên không được để trống", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        viewModel.toastMessage.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let { message ->
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-            }
+        if (viewModel.isStudentIdExists(id)) {
+            Toast.makeText(context, "MSSV này đã tồn tại", Toast.LENGTH_SHORT).show()
+            binding.etStudentId.requestFocus()
+        } else {
+            val student = SinhVien(id, name, phone, address)
+            viewModel.addStudent(student)
+            Toast.makeText(context, "Thêm sinh viên thành công!", Toast.LENGTH_SHORT).show()
+            findNavController().navigateUp()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

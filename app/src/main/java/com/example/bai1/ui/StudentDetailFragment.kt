@@ -9,60 +9,74 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
+import com.example.bai1.SinhVien
 import com.example.bai1.StudentViewModel
 import com.example.bai1.databinding.FragmentStudentDetailBinding
 
 class StudentDetailFragment : Fragment() {
-    private lateinit var binding: FragmentStudentDetailBinding
+    private var _binding: FragmentStudentDetailBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: StudentViewModel by activityViewModels()
-    private val args: StudentDetailFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentStudentDetailBinding.inflate(inflater, container, false)
+        _binding = FragmentStudentDetailBinding.inflate(inflater, container, false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.btnUpdate.setOnClickListener { tryUpdateStudent() }
+        binding.btnDelete.setOnClickListener { confirmAndDeleteStudent() }
+    }
 
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
+    private fun tryUpdateStudent() {
+        val currentStudent = viewModel.selectedStudent.value ?: return
 
-        viewModel.students.value?.find { it.mssv == args.studentId }?.let {
-            viewModel.initStudentForEdit(it)
+        val id = binding.etStudentId.text.toString().trim()
+        val name = binding.etStudentName.text.toString().trim()
+        val phone = binding.etStudentPhone.text.toString().trim()
+        val address = binding.etStudentAddress.text.toString().trim()
+
+        if (id.isEmpty() || name.isEmpty()) {
+            Toast.makeText(context, "MSSV và Tên không được để trống", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        binding.btnDelete.setOnClickListener {
-            showDeleteConfirmationDialog()
-        }
-
-        viewModel.navigationEvent.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let {
-                findNavController().navigateUp()
-            }
-        }
-
-        viewModel.toastMessage.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let { message ->
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-            }
+        if (id != currentStudent.id && viewModel.isStudentIdExists(id)) {
+            Toast.makeText(context, "MSSV này đã tồn tại", Toast.LENGTH_SHORT).show()
+            binding.etStudentId.requestFocus()
+        } else {
+            val updatedStudent = SinhVien(id, name, phone, address)
+            viewModel.updateStudent(currentStudent.id, updatedStudent)
+            Toast.makeText(context, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+            findNavController().navigateUp()
         }
     }
 
-    private fun showDeleteConfirmationDialog() {
-        val studentName = viewModel.name.value ?: ""
+    private fun confirmAndDeleteStudent() {
+        val student = viewModel.selectedStudent.value ?: return
+
         AlertDialog.Builder(requireContext())
-            .setTitle("Xác nhận xóa")
-            .setMessage("Bạn có chắc chắn muốn xóa sinh viên $studentName không?")
+            .setTitle("Xác nhận Xóa")
+            .setMessage("Bạn có chắc chắn muốn xóa sinh viên ${student.name}?")
             .setPositiveButton("Xóa") { _, _ ->
-                viewModel.deleteStudent()
+                viewModel.deleteStudent(student.id)
+                Toast.makeText(context, "Đã xóa sinh viên", Toast.LENGTH_SHORT).show()
+                findNavController().navigateUp()
             }
             .setNegativeButton("Hủy", null)
             .show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.clearSelectedStudent()
+        _binding = null
     }
 }

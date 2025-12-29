@@ -29,8 +29,7 @@
                 android:id="@+id/etStudentId"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập MSSV"
-                android:text="@={viewModel.mssv}" />
+                android:hint="Nhập MSSV" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -42,8 +41,7 @@
                 android:id="@+id/etStudentName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập họ và tên"
-                android:text="@={viewModel.name}" />
+                android:hint="Nhập họ và tên" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -55,8 +53,7 @@
                 android:id="@+id/etStudentPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập số điện thoại"
-                android:text="@={viewModel.phone}" />
+                android:hint="Nhập số điện thoại" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -68,15 +65,13 @@
                 android:id="@+id/etStudentAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập địa chỉ"
-                android:text="@={viewModel.address}" />
+                android:hint="Nhập địa chỉ" />
 
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:onClick="@{() -> viewModel.saveNewStudent()}"
                 android:text="Lưu" />
 
         </LinearLayout>
